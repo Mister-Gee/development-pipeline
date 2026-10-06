@@ -54,3 +54,7 @@ The Codex agent roles set `model = "gpt-6-astra" | "gpt-6-sol" | "gpt-6-luna"` i
 Re-invoke the same skill in the same repo. With no argument, each skill infers its phase from
 which state files exist. Each also accepts an explicit phase (for example `review-fix plan`,
 `review-implement next`, `review-fix status`).
+
+## License
+
+MIT © 2026 Gbenga Fakuade. See [LICENSE](LICENSE).

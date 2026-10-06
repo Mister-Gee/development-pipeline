@@ -1,6 +1,6 @@
 {
   "name": "development-pipeline",
-  "owner": { "name": "fakuadegbenga" },
+  "owner": { "name": "Gbenga Fakuade" },
   "metadata": {
     "description": "Resumable, file-backed build / review / fix pipelines driven by planner, writer and reviewer sub-agents."
   },

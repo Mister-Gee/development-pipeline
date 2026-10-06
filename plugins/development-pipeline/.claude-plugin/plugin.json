@@ -2,6 +2,7 @@
   "name": "development-pipeline",
   "version": "1.0.0",
   "description": "Resumable, file-backed pipelines: build-project (idea to code), review-fix (audit and fix), review-implement (scope and build a feature). Delegates to task-planner, code-writer, junior-code-writer and code-reviewer sub-agents.",
-  "author": { "name": "fakuadegbenga" },
+  "author": { "name": "Gbenga Fakuade" },
+  "license": "MIT",
   "keywords": ["code-review", "planning", "subagents", "pipeline", "workflow"]
 }
