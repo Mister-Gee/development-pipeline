@@ -138,6 +138,34 @@ agent doing the review, planning, or coding itself "because it's faster". Do not
   for an incomplete independent review. The orchestrator must not offer inline takeover; preserve
   partial diffs and artifacts for a future delegated continuation.
 
+## Gate 0 — is the pipeline worth it? (new runs only; skip on resume)
+
+A full pass is four sub-agent invocations (review → plan → fix → re-review), two of them on
+the pipeline's most expensive tier. That is the right price for a codebase audit and the
+wrong price for one known bug.
+
+Before dispatching `review`, judge the request. **If the user is pointing at a specific
+known defect rather than asking for a codebase-wide audit, and the fix plausibly touches
+≤2 files**, put it to them rather than dispatching:
+
+> "You've named a specific bug rather than asked for an audit. The full review → plan →
+> fix → re-review pipeline is probably overkill. I can fix it directly and run the
+> project's verification, or run the pipeline anyway if you want the findings and review
+> artifacts."
+
+**The user's answer decides — never skip the pipeline silently.** If they choose direct,
+the Delegation Contract is lifted for that fix only. If they choose the pipeline, or
+don't answer, proceed to `review` as normal.
+
+An explicit request to "review the codebase" is never a candidate for this gate — that
+*is* the pipeline's job. Run the pipeline when in doubt, and always when the defect
+touches auth, permissions, persistence, migrations, money, or data integrity. This gate
+exists to skip ceremony on small work — never to skip review on risky work.
+
+This gate is the **only** exception to the no-inline-takeover rule in the Codex delegation
+contract above, and it applies only before any sub-agent has been dispatched. Once the
+pipeline has started, the contract holds in full.
+
 ## Artifacts (single source of truth, written to the repo being worked on)
 
 - `REVIEW.md` — findings from the review, each with an ID (`F-001`…), severity
@@ -247,7 +275,7 @@ user only if **you** relay them.
 - Keep prompts to sub-agents scoped to one batch.
 - State is the files. If interrupted, resuming is just re-invoking the skill in the repo.
 
-## Karpathy guardrails (apply at every phase)
+## Engineering guardrails (apply at every phase)
 
 1. **Think before coding.** In `plan`, state assumptions explicitly. If a finding has
    multiple plausible fixes, present the options with a recommendation — don't pick silently.

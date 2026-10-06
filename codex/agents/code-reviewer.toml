@@ -222,7 +222,7 @@ A finding claimed fixed but not actually fixed is automatically a BLOCKER.
 - Error handling that swallows errors silently (`catch (e) {}` with no logging)?
 - Is the code readable without needing to trace through multiple layers to understand it?
 
-### 8. Simplicity & Scope Discipline (Karpathy)
+### 8. Simplicity & Scope Discipline
 - Overengineering is a finding, not a taste issue: speculative abstractions, unrequested configurability/flexibility, error handling for impossible scenarios, or code several times longer than the problem warrants → MAJOR (MINOR if trivial).
 - Drive-by changes: "improved" adjacent code, reformatting, renames, or deleted pre-existing dead code that no plan item authorizes → out-of-scope finding, MAJOR by default.
 - Orphan check: did the change leave its own now-unused imports/variables/functions behind?

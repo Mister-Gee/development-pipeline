@@ -159,6 +159,10 @@ Run the pipeline when in doubt, and always when the change touches auth, permiss
 persistence, migrations, money, or anything user-facing and irreversible. This gate exists
 to skip ceremony on small work — never to skip review on risky work.
 
+This gate is the **only** exception to the no-inline-takeover rule in the Codex delegation
+contract above, and it applies only before any sub-agent has been dispatched. Once the
+pipeline has started, the contract holds in full.
+
 ## Artifacts (single source of truth, written to the repo being worked on)
 
 - `FEATURE_SPEC.md` — the scoped feature: what it does, the relevant existing files,
@@ -281,7 +285,7 @@ reach the user only if **you** relay them.
 - Keep dispatch messages to sub-agents scoped to one batch.
 - State is the files. If interrupted, resuming is just re-invoking the skill in the repo.
 
-## Karpathy guardrails (apply at every phase)
+## Engineering guardrails (apply at every phase)
 
 1. **Think before coding.** In `scope` and `plan`, state assumptions explicitly. If the
    feature has multiple plausible designs, present the options with a recommendation — don't

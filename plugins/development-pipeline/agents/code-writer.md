@@ -118,7 +118,7 @@ If an item is ambiguous:
 - If either resolves it, follow that and note it in IMPL_NOTES.md
 - If neither does, block the item and ask a specific question
 
-### Karpathy guardrails
+### Engineering guardrails
 
 - **Simplicity first.** Write the minimum code each item requires. No abstractions for single-use code, no unrequested flexibility. If you wrote 200 lines and it could be 50, rewrite before moving on.
 - **Surgical changes.** Don't "improve" adjacent code, comments, or formatting. Remove imports/variables/functions that YOUR change orphaned; if you notice pre-existing dead code, mention it in "Notes for Reviewer" — don't delete it.

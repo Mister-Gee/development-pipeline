@@ -74,7 +74,7 @@ exists to skip ceremony on small work — never to skip review on risky work.
 
 **Read `pipeline-core.md` (in this skill's folder) now.** It carries the rules this skill
 depends on and does not repeat: handoff handling, how sub-agents escalate to the user, the
-standing rules, and the Karpathy guardrails. Read it once per session, before Gate 0.
+standing rules, and the engineering guardrails. Read it once per session, before Gate 0.
 
 ## Artifacts (single source of truth, written to the repo being worked on)
 
@@ -160,7 +160,7 @@ which artifact phase the pipeline is in, and whether HANDOFF.md is present.
 ## Feedback, rules, and guardrails
 
 See `pipeline-core.md` (in this skill's folder) — escalation protocol, standing rules, and
-the Karpathy guardrails. Two additions specific to this skill:
+the engineering guardrails. Two additions specific to this skill:
 
 - In `plan`, state assumptions explicitly. If a finding has multiple plausible fixes,
   present the options with a recommendation — never pick one silently. When that goes out as

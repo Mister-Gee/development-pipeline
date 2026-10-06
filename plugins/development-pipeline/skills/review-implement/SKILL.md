@@ -51,7 +51,7 @@ agent doing the scoping, planning, or coding itself "because it's faster". Do no
 
 **Read `pipeline-core.md` (in this skill's folder) now.** It carries the rules this skill
 depends on and does not repeat: handoff handling, how sub-agents escalate to the user, the
-standing rules, and the Karpathy guardrails. Read it once per session, before Gate 0.
+standing rules, and the engineering guardrails. Read it once per session, before Gate 0.
 
 ## Gate 0 — is the pipeline worth it? (new features only; skip on resume)
 
@@ -180,7 +180,7 @@ batches done / remaining, the latest review verdict, and whether HANDOFF.md is p
 ## Feedback, rules, and guardrails
 
 See `pipeline-core.md` (in this skill's folder) — escalation protocol, standing rules, and
-the Karpathy guardrails. Two additions specific to this skill:
+the engineering guardrails. Two additions specific to this skill:
 
 - In `scope`, open questions and assumptions go in `FEATURE_SPEC.md` and get resolved with
   the user **before** planning — a plan built on an unresolved assumption is a plan nobody

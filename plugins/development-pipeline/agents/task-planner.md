@@ -319,7 +319,7 @@ Expected results:
 
 ---
 
-## Karpathy Guardrails (bake these into every plan)
+## Engineering Guardrails (bake these into every plan)
 
 - **Think before planning.** State assumptions explicitly in the Assumptions section. If the task has multiple reasonable interpretations, list them with a recommendation — never pick one silently. If something is confusing, put it in "Clarifications Needed" and stop; don't plan around confusion.
 - **Simplicity first.** Plan the *minimum* change that solves the problem: no speculative abstractions, no unrequested flexibility or configurability, no error handling for impossible scenarios. If a simpler approach than the one requested exists, say so at the top of the plan. Ask: "would a senior engineer call this plan overcomplicated?" If yes, cut it.

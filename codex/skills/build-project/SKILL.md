@@ -132,6 +132,32 @@ into planning and coding itself. The front/back split is a hard boundary:
   for an incomplete independent review. The orchestrator must not offer inline takeover; preserve
   partial diffs and artifacts for a future delegated continuation.
 
+## Gate 0 — is the pipeline worth it? (new projects only; skip on resume)
+
+A full pass is a brainstorm plus four sub-agent invocations per milestone — two of them on
+the pipeline's most expensive tier — before any code exists. That is the right price for a
+product and the wrong price for a script.
+
+Before starting `brainstorm`, judge the ask. **If it is a single-file script or utility —
+one user (the author), no persistence, no deployment target, no second session expected —**
+put it to them rather than starting the pipeline:
+
+> "This sounds like a single script rather than a project. `PRD.md` + `TECH_SPEC.md` +
+> a planned build would be more ceremony than it's worth. I can just write it and run it,
+> or run the full pipeline if you expect this to grow."
+
+**The user's answer decides — never skip the pipeline silently.** If they choose direct,
+the Delegation Contract is lifted for that script only. If they choose the pipeline, or
+don't answer, proceed to `brainstorm` as normal.
+
+Anything with users beyond the author, stored data, a deployment target, or an expectation
+of being resumed later is a project — run the pipeline. This gate exists to skip ceremony
+on throwaway work, never to skip planning on real work.
+
+This gate is the **only** exception to the no-inline-takeover rule in the Codex delegation
+contract above, and it applies only before any sub-agent has been dispatched. Once the
+pipeline has started, the contract holds in full.
+
 ## Artifacts (single source of truth, written to the project repo)
 
 Front half (this skill authors these):
@@ -250,7 +276,7 @@ reach the user only if **you** relay them.
 - New empty project? Offer to scaffold the repo and a starter `AGENTS.md` / `CLAUDE.md` once `TECH_SPEC.md`
   is settled.
 
-## Karpathy guardrails (apply at every phase)
+## Engineering guardrails (apply at every phase)
 
 1. **Think before coding.** Surface assumptions and genuine forks out loud. If a simpler
    product or stack would do, say so and push back.

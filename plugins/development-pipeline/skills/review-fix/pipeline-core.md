@@ -129,7 +129,7 @@ mid-implementation stays a single question.
 
 ---
 
-## Karpathy guardrails (apply at every phase)
+## Engineering guardrails (apply at every phase)
 
 1. **Think before coding.** Surface assumptions and genuine forks explicitly, in the
    artifact and to the user. If something is confusing, say so rather than planning

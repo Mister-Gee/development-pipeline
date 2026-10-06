@@ -66,7 +66,7 @@ on throwaway work, never to skip planning on real work.
 
 **Read `pipeline-core.md` (in this skill's folder) now.** It carries the rules this skill
 depends on and does not repeat: handoff handling, how sub-agents escalate to the user, the
-standing rules, and the Karpathy guardrails.
+standing rules, and the engineering guardrails.
 
 ## Artifacts (single source of truth, written to the project repo)
 
@@ -177,7 +177,7 @@ any open questions still parked in `PRD.md`, and whether `HANDOFF.md` is present
 ## Feedback, rules, and guardrails
 
 See `pipeline-core.md` (in this skill's folder) — escalation protocol, standing rules, and
-the Karpathy guardrails. The front half of this skill adds four of its own:
+the engineering guardrails. The front half of this skill adds four of its own:
 
 - **The front half is interactive by design.** Use `AskUserQuestion` for genuine forks and
   confirm at each gate before writing `PRD.md` or `TECH_SPEC.md`. Every `brainstorm` and
