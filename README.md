@@ -1,5 +1,8 @@
 # development-pipeline
 
+[![npm](https://img.shields.io/npm/v/development-pipeline)](https://www.npmjs.com/package/development-pipeline)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Resumable, file-backed software pipelines for **Claude Code** and **Codex**. A main agent
 orchestrates, and dedicated sub-agents plan, write and review the code. All state lives in
 markdown files inside your repo, so any fresh session picks up where the last one stopped.
@@ -32,9 +35,20 @@ By default this installs for every tool it finds (`~/.claude`, `~/.codex`). Opti
 | `--force` | Overwrite skills or agents that already exist with the same names |
 | `uninstall` | Remove everything this package installed (`npx development-pipeline uninstall`) |
 
-Existing files with the same names are skipped unless you pass `--force`. Before the npm
-release, the same command works straight from GitHub:
-`npx github:Mister-Gee/development-pipeline`.
+Examples:
+
+```bash
+npx development-pipeline --claude            # Claude Code only, user-wide
+npx development-pipeline --claude --project  # Claude Code only, this repo
+npx development-pipeline --codex             # Codex only
+npx development-pipeline@latest --force      # upgrade an existing install
+```
+
+Existing files with the same names are skipped unless you pass `--force`. Restart Claude Code
+or Codex after installing. Requires Node.js 18+.
+
+The npx install puts the agents under their plain names (`code-writer`, …). The plugin
+install below registers them as `development-pipeline:code-writer`, …. Use one method, not both.
 
 ## Install: Claude Code (plugin)
 
@@ -49,7 +63,7 @@ are registered as `development-pipeline:task-planner`, `development-pipeline:cod
 Model choices are in each agent's frontmatter (`plugins/development-pipeline/agents/*.md`):
 `opus` for planner, writer and reviewer, `haiku` for the junior writer.
 
-## Install: Codex
+## Install: Codex (without npm)
 
 ```bash
 git clone https://github.com/Mister-Gee/development-pipeline
