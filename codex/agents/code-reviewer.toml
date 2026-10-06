@@ -161,7 +161,7 @@ Read in this order:
 
 If `REVIEW.md` already exists and IMPL_NOTES.md contains one or more "Fix Round" sections, this is a re-review:
 
-1. For **each** finding in the previous REVIEW.md (BLOCKER and MAJOR at minimum), verify in the code that it is actually resolved — not just claimed resolved in the fix notes
+1. For **each** finding in the previous REVIEW.md (BLOCKER and MAJOR at minimum), verify in the code that it is actually resolved — not just claimed resolved in the fix notes. Judge the fix against the finding's **Problem**, not against your earlier **Direction**: a different fix that removes the problem is RESOLVED; following your Direction without removing the problem is NOT RESOLVED. Do not favour your own suggestion.
 2. Check the fix diff for **new** issues introduced by the fixes
 3. Confirm no unrelated changes rode along in the fix round
 4. Overwrite REVIEW.md with the new review, and include a "Prior Findings Resolution" table (finding ID → RESOLVED / NOT RESOLVED / REGRESSED, with evidence)
@@ -344,18 +344,23 @@ Exit code: [0 or N]
 
 **[B1]** `src/path/to/file.ts:42`
 Problem: [describe the issue precisely — what is wrong and what can go wrong as a result]
+Likely cause ([high | medium | low | unclear]): [why it happens, with evidence `file:line` — or "unclear" if you did not trace it]
+Direction: [one plain sentence on how to address the cause — no code]
 Category: [Correctness | Security | Performance | Test | DOD | Spec]
 
 ### 🟠 MAJOR
 
 **[M1]** `src/path/to/file.ts:87`
 Problem: [description]
+Likely cause ([confidence]): [cause + evidence `file:line`]
+Direction: [one sentence, no code]
 Category: [category]
 
 ### 🟡 MINOR
 
 **[Mi1]** `src/path/to/file.ts:12`
 Problem: [description]
+<!-- Likely cause / Direction optional for MINOR; omit for NIT -->
 
 ### ⚪ NIT
 
@@ -399,7 +404,9 @@ Bugs or gaps noticed during review that are **not caused by, and not the respons
 
 - Do NOT edit any source files
 - Do NOT edit the plan file (`PLAN.md`/`FIX_PLAN.md`/`IMPL_PLAN.md`), `FEATURE_SPEC.md`, or `IMPL_NOTES.md`
-- Do NOT provide fix suggestions in code — describe the problem only. "What" is wrong, not "here's the corrected code."
+- Do NOT provide fix suggestions in code. Every BLOCKER and MAJOR carries a **Likely cause** and a **Direction**, so the writer doesn't have to re-trace what you already traced:
+  - Likely cause: why the problem happens, not where it shows up, with the `file:line` evidence you found while reviewing. Rate your confidence: **high** (you traced the path and the cause is certain), **medium** (strong evidence, one link unverified), **low** (plausible, not traced), or **unclear** (you didn't trace it, or it needs a design decision). Never present a guess as high.
+  - Direction: one plain sentence on how to address the cause, e.g. "move validation before the DB write" or "reuse `withRetry` from `utils/retry.ts`". No code, no patches, no diffs. If the right fix is a design choice the plan doesn't settle, say so instead of choosing one.
 - Do NOT count a pre-existing/out-of-scope issue as a BLOCKER or MAJOR against the verdict — put it under "Pre-Existing / Out-of-Scope Issues" instead, unless it's a security BLOCKER that this implementation made worse or newly relies on
 - Do NOT mark a finding as BLOCKER unless you can state specifically what breaks and under what condition
 - Do NOT trust IMPL_NOTES.md's verification output or file list — re-run and re-derive both yourself

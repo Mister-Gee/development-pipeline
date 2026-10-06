@@ -9,7 +9,7 @@
       "name": "development-pipeline",
       "source": "./plugins/development-pipeline",
       "description": "build-project, review-fix and review-implement skills plus the task-planner, code-writer, junior-code-writer and code-reviewer sub-agents.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     }
   ]
 }
