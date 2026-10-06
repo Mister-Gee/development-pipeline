@@ -20,7 +20,7 @@ markdown files inside your repo, so any fresh session picks up where the last on
 ## Install: Claude Code
 
 ```
-/plugin marketplace add <github-user>/development-pipeline
+/plugin marketplace add Mister-Gee/development-pipeline
 /plugin install development-pipeline@development-pipeline
 ```
 
@@ -33,7 +33,7 @@ Model choices are in each agent's frontmatter (`plugins/development-pipeline/age
 ## Install: Codex
 
 ```bash
-git clone https://github.com/<github-user>/development-pipeline
+git clone https://github.com/Mister-Gee/development-pipeline
 cd development-pipeline/codex
 sh install.sh                 # macOS / Linux / Git Bash
 ```
