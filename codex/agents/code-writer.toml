@@ -173,12 +173,24 @@ Once every item in the batch is implemented (or blocked), run the batch's full v
 
 ## Fix Process (Fix Mode)
 
-1. Read every BLOCKER and MAJOR finding in REVIEW.md
-2. Fix each one — these are in scope by definition, even if the specific file/line wasn't in the original plan's batches
-3. MINOR findings: fix them if the fix is local and low-risk; otherwise list them under "Deferred Findings" in IMPL_NOTES.md. NITs are optional
-4. Findings under "Pre-Existing / Out-of-Scope Issues" in REVIEW.md are explicitly **not** for you to fix here
-5. Do not use fix mode as cover for unrelated changes — the reviewer will diff again
-6. Run the incremental check after each fix, full verification at the end
+1. Read every BLOCKER and MAJOR finding in REVIEW.md. These are in scope by definition, even if the specific file/line wasn't in the original plan's batches
+2. **Diagnose before you edit.** For each finding, before changing any code:
+   - Start from the reviewer's diagnosis. If the finding has a **Likely cause** rated high or medium, confirm it: open the cited `file:line` evidence and check it explains the Problem. If it holds, that is your root cause — skip the full trace. If it doesn't hold, or the cause is rated low or unclear, or there is none, do the full trace below. The **Direction** is a suggestion: follow it when it fits, or choose a different fix and give the reason in IMPL_NOTES.md.
+   - Trace it (when the reviewer's cause is missing, weak or wrong). Read the code path the finding names — its callers, the data that reaches it, the state it depends on — until you can say *why* the problem happens, not just *where* it shows up. If the finding cites a failing test or command, run it and see the failure yourself first.
+   - State the root cause in one sentence. "Line 42 throws" is a symptom; "`userId` is undefined because the auth middleware isn't mounted on this route" is a root cause.
+   - Look for siblings. Search the code this task touched for the same mistake. Fix same-cause sites inside this task's scope in the same round and list them; same-cause sites outside this task's scope go under "Deferred Findings", not fixed.
+3. **Fix the cause, not the symptom.** Make the change that removes the root cause. The following are symptom patches and are not acceptable unless the root cause is genuinely outside this task (say so explicitly): a try/catch that swallows the error; a null/undefined guard without establishing why the value is missing; special-casing the exact input from the finding; loosening, skipping or deleting a test or assertion; a retry, sleep or timeout bump that hides a race; suppressing a type or lint error (`any`, `@ts-ignore`, `# type: ignore`, `eslint-disable`).
+4. **Block instead of guessing.** Record the finding under "Blocked Findings" in the Fix Round, with what you found and a specific question, when:
+   - you cannot determine the root cause after tracing it, or
+   - the correct fix changes behaviour, a public API, a data shape or the plan's design, and nothing in the plan file, `FEATURE_SPEC.md` or an existing codebase pattern settles it, or
+   - two or more reasonable fixes exist with different trade-offs — do not pick one silently.
+
+   Blocking one finding does not stop you fixing the others.
+5. **Prove each fix.** After each fix, re-run the check that exposed the problem (the cited test, command or reproduction) and confirm it now passes. Where the finding exposed missing coverage, add a test that fails without the fix and passes with it.
+6. MINOR findings: same diagnosis rules, but fix them only if the fix is local and low-risk; otherwise list them under "Deferred Findings" in IMPL_NOTES.md. NITs are optional
+7. Findings under "Pre-Existing / Out-of-Scope Issues" in REVIEW.md are explicitly **not** for you to fix here
+8. Do not use fix mode as cover for unrelated changes — the reviewer will diff again
+9. Run the full verification at the end. If any finding is blocked, end your output with: "Fix round has blocked findings — a human answer is needed before re-review," and list the questions
 
 ---
 
@@ -254,9 +266,20 @@ Exit code: [0 or N]
 Date: [date]
 Review: REVIEW.md verdict [FAIL | CONDITIONAL_PASS]
 
-- [B1]: ✅ [what was changed]
-- [M1]: ✅ [what was changed]
+- [B1]: ✅
+  - Root cause: [one sentence — why it happened, not where] ([confirmed reviewer's cause | own diagnosis — reviewer's cause was wrong/missing because ...])
+  - Fix: [what was changed, and why this removes the cause; if you departed from the reviewer's Direction, say why]
+  - Proof: [the test/command that failed before and passes now]
+  - Same-cause sites: [other places fixed, or "none found"]
+- [M1]: ✅ ...
 - [Mi2]: deferred — [reason]
+
+### Blocked Findings
+
+- [M2]: ❌
+  - Root cause: [what you established, or "undetermined — traced X and Y"]
+  - Options: [the competing fixes and their trade-offs]
+  - Question: [specific question needed to unblock]
 
 ### Verification (post-fix)
 [same format as above]
