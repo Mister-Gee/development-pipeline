@@ -1,0 +1,15 @@
+{
+  "name": "development-pipeline",
+  "owner": { "name": "fakuadegbenga" },
+  "metadata": {
+    "description": "Resumable, file-backed build / review / fix pipelines driven by planner, writer and reviewer sub-agents."
+  },
+  "plugins": [
+    {
+      "name": "development-pipeline",
+      "source": "./plugins/development-pipeline",
+      "description": "build-project, review-fix and review-implement skills plus the task-planner, code-writer, junior-code-writer and code-reviewer sub-agents.",
+      "version": "1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review & Implement"
+  short_description: "Resumable scope → feature-plan → per-batch implement → review pipeline"
+  default_prompt: "Use $review-implement to scope a new feature against this codebase, write FEATURE_SPEC.md and a batched IMPL_PLAN.md, then implement and review it from those files."

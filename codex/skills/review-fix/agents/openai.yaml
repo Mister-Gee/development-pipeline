@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review & Fix"
+  short_description: "Resumable review → fix-plan → per-fix implement → re-review pipeline"
+  default_prompt: "Use $review-fix to review this codebase, write findings and a batched fix plan to markdown, then implement and re-review from those files."

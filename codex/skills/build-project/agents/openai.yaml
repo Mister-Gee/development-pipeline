@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build Project"
+  short_description: "Idea → PRD → tech spec → plan → build → review, resumable from files"
+  default_prompt: "Use $build-project to brainstorm a new product with me, write PRD.md and TECH_SPEC.md, then plan, build, and review it via the task-planner, code-writer, and code-reviewer agents."
