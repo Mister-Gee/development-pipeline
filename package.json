@@ -1,0 +1,37 @@
+{
+  "name": "development-pipeline",
+  "version": "1.0.0",
+  "description": "Resumable, file-backed build / review / fix pipelines for Claude Code and Codex, driven by planner, writer and reviewer sub-agents.",
+  "bin": {
+    "development-pipeline": "bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "plugins/",
+    "codex/",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude-code",
+    "codex",
+    "skills",
+    "subagents",
+    "code-review",
+    "planning",
+    "pipeline"
+  ],
+  "author": "Gbenga Fakuade",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mister-Gee/development-pipeline.git"
+  },
+  "homepage": "https://github.com/Mister-Gee/development-pipeline#readme",
+  "bugs": {
+    "url": "https://github.com/Mister-Gee/development-pipeline/issues"
+  }
+}

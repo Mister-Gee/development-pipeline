@@ -17,7 +17,26 @@ markdown files inside your repo, so any fresh session picks up where the last on
 | `junior-code-writer` | Cheap implementer for MECHANICAL batches only |
 | `code-reviewer` | Audits the diff (PASS / FAIL / CONDITIONAL_PASS); also scopes features into `FEATURE_SPEC.md` |
 
-## Install: Claude Code
+## Install with npx (Claude Code and/or Codex)
+
+```bash
+npx development-pipeline
+```
+
+By default this installs for every tool it finds (`~/.claude`, `~/.codex`). Options:
+
+| Flag | Effect |
+|---|---|
+| `--claude` / `--codex` | Install for just that tool |
+| `--project` | Claude Code only: install into `./.claude` of the current repo |
+| `--force` | Overwrite skills or agents that already exist with the same names |
+| `uninstall` | Remove everything this package installed (`npx development-pipeline uninstall`) |
+
+Existing files with the same names are skipped unless you pass `--force`. Before the npm
+release, the same command works straight from GitHub:
+`npx github:Mister-Gee/development-pipeline`.
+
+## Install: Claude Code (plugin)
 
 ```
 /plugin marketplace add Mister-Gee/development-pipeline
