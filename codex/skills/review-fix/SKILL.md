@@ -168,46 +168,75 @@ pipeline has started, the contract holds in full.
 
 ## Where the files live (`.pipeline/`)
 
-Every file this pipeline writes lives under `.pipeline/` at the repo root, never loose in
-the root itself.
+New tasks keep every pipeline file under `.pipeline/` at the repo root, never loose in the
+root itself.
 
 ```
 .pipeline/
-  product/                                  # build-project only
+  product/                                # build-project only
     PRD.md  TECH_SPEC.md
-  2026-10-07-review-fix-auth-audit/         # one folder per task
+  20261007-review-fix-auth-audit/         # one folder per task
     REVIEW.md  FIX_PLAN.md  IMPL_NOTES.md  HANDOFF.md
-  2026-10-09-review-implement-csv-export/
+  20261009-review-implement-csv-export/
     FEATURE_SPEC.md  IMPL_PLAN.md  IMPL_NOTES.md  REVIEW.md
-  2026-10-12-build-project-m1-accounts/     # build-project: one folder per milestone
+  20261012-build-project-m1-accounts/     # build-project: one folder per milestone
     PLAN.md  IMPL_NOTES.md  REVIEW.md
 ```
 
-- **Task folder name:** `<YYYY-MM-DD>-<skill>-<short-kebab-slug>`, using today's date. The
-  folder name is the Task ID that every agent copies into its files.
-- **Every dispatch starts with `TASK_DIR: <path to the task folder>`.** The agents read and
-  write pipeline files only there. When this skill says "the project root" for a pipeline
-  file, it means the task folder.
-- **Picking the task to resume (no argument):** look at this skill's folders (names
-  containing `-<skill>-`). A task is **finished** when its plan file is fully ticked and its
-  `REVIEW.md` verdict is PASS. Resume the one unfinished folder. If several are unfinished,
-  ask the user which one, newest first. If none are, start a new task:
-  create its folder before the first dispatch. The user can also
-  name a folder directly.
-- **History is kept.** Never delete or rewrite a finished task's folder, and never touch
-  another task's folder. Because every run gets a fresh folder, nothing needs clearing
-  before a new task starts.
-- **Commit it.** `.pipeline/` is project history (specs, plans, reviews), so leave it
-  tracked. Don't add it to `.gitignore`. If the repo already ignores it, leave that alone
-  and mention it once.
-- **Old root files (1.x layout):** before starting, check the repo root for `PLAN.md`,
-  `FIX_PLAN.md`, `IMPL_PLAN.md`, `FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`,
-  `HANDOFF.md`, `PRD.md` or `TECH_SPEC.md`. If any exist, list them and ask whether to move
-  them into `.pipeline/`: plan, spec, review and notes files into a task folder named from
-  their Task ID (or `<date>-legacy` without one); `PRD.md` and `TECH_SPEC.md` into
-  `.pipeline/product/`. Use `git mv` for tracked files. **Never move anything without a
-  yes**: a root `PRD.md` or `PLAN.md` may be the project's own document, not a pipeline
-  file. If the user declines, leave them where they are and work in `.pipeline/` anyway.
+- **Task folder name:** `<YYYYMMDD>-<skill>-<short-kebab-slug>`. Take the date from the
+  shell (`date +%Y%m%d`), not from memory. The folder name is the Task ID every agent copies
+  into its files.
+- **Older tasks at the repo root (1.x layout) still work.** If the repo root has `PLAN.md`,
+  `FIX_PLAN.md`, `IMPL_PLAN.md`, `FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md` or
+  `HANDOFF.md`, that is a task too: call it **root**. Offer once to move it into a
+  `.pipeline/` task folder (named from its Task ID, or `<YYYYMMDD>-<skill>-legacy`), using
+  `git mv` for tracked files. **Never move anything without a yes**: a root `PLAN.md` may be
+  the project's own document. If the user declines, keep working with it in place using
+  `TASK_DIR: .`. For build-project, look for `PRD.md` / `TECH_SPEC.md` in
+  `.pipeline/product/` first, then at the repo root.
+- **Git-ignore `.pipeline/`.** The first time you create `.pipeline/` in a git repo, add a
+  `.pipeline/` line to `.gitignore` (create the file if needed). Pipeline files are local
+  working state, and a `REVIEW.md` can describe security problems that are not fixed yet,
+  which must never reach a public repo. This is the one edit outside the task folder you may
+  make. If the user later removes the line, don't add it back.
+- **List task folders with the shell** (`ls -d .pipeline/*/`). Search tools such as Glob and
+  Grep may skip git-ignored folders.
+
+### Choosing the task
+
+1. **Split the argument.** A word matching one of this skill's mode names is the mode.
+   Anything else is a **task reference**.
+2. **A task reference was given:** match it against this skill's task folders (and **root**),
+   ignoring case, the date and the skill name. Try, in order: the exact slug; slugs
+   containing every word of the reference; the closest slug. `root` or `legacy` means the
+   root task.
+   - one match → resume it, even if it is finished or was abandoned
+   - several → ask the user which one, newest first
+   - none → the reference is a new request: start a new task with a slug made from it
+3. **No task reference:** resume this skill's one **unfinished** task. A task is finished
+   when its plan file is fully ticked and its `REVIEW.md` verdict is PASS. If several are
+   unfinished, ask which one, newest first, and remind the user they can pass a name next
+   time. If none are, start a new task.
+4. **Starting a new task:** create its folder before the first dispatch.
+
+Never delete or rewrite another task's folder. Old folders are history; because every task
+has its own folder, nothing needs clearing before a new one starts.
+
+### Enforcement (every dispatch)
+
+- **Every dispatch starts with `TASK_DIR: <task folder>`** (`TASK_DIR: .` for the root
+  task). An agent dispatched without it stops with BLOCKED and does nothing. That is a
+  wasted dispatch, so never omit it.
+- **After every sub-agent returns, check its work before anything else:**
+  1. The file it was meant to produce exists in `TASK_DIR`: `FEATURE_SPEC.md` or `REVIEW.md`
+     after scope/review, the plan file after plan, `IMPL_NOTES.md` after implement.
+  2. No pipeline file appeared or changed outside `TASK_DIR`. Check the paths the agent
+     lists in its final message, run `git status --porcelain --untracked-files=all`, and
+     list the repo root. Any of the file names above at the root (when `TASK_DIR` is not
+     `.`) or in another task's folder is a stray.
+  3. Move a stray into `TASK_DIR` (that counts as bookkeeping) and tell the user. If the
+     expected file is missing, the dispatch failed: re-dispatch once with the same
+     `TASK_DIR`, then stop and report.
 
 ## Artifacts (single source of truth, written to the task folder)
 

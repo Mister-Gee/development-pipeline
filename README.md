@@ -27,17 +27,20 @@ Since 2.0, everything goes into a `.pipeline/` folder, one subfolder per task:
 
 ```
 .pipeline/
-  product/                                  # build-project: PRD.md, TECH_SPEC.md
-  2026-10-07-review-fix-auth-audit/         # REVIEW.md, FIX_PLAN.md, IMPL_NOTES.md
-  2026-10-09-review-implement-csv-export/   # FEATURE_SPEC.md, IMPL_PLAN.md, IMPL_NOTES.md, REVIEW.md
-  2026-10-12-build-project-m1-accounts/     # PLAN.md, IMPL_NOTES.md, REVIEW.md (one per milestone)
+  product/                                # build-project: PRD.md, TECH_SPEC.md
+  20261007-review-fix-auth-audit/         # REVIEW.md, FIX_PLAN.md, IMPL_NOTES.md
+  20261009-review-implement-csv-export/   # FEATURE_SPEC.md, IMPL_PLAN.md, IMPL_NOTES.md, REVIEW.md
+  20261012-build-project-m1-accounts/     # PLAN.md, IMPL_NOTES.md, REVIEW.md (one per milestone)
 ```
 
 - Finished task folders are kept as history, and two tasks can run side by side.
-- Commit `.pipeline/` so specs, plans and reviews stay with the project.
-- Upgrading from 1.x: if your repo root still has `PLAN.md`, `REVIEW.md` and the like, the
-  skill lists them and asks before moving them into `.pipeline/`. It never moves files
-  without a yes.
+- `.pipeline/` is git-ignored: the skill adds it to `.gitignore` the first time. Reviews can
+  describe security problems that aren't fixed yet, so they shouldn't reach a public repo.
+  Remove the line if you want the files tracked; the skill won't add it back.
+- Older tasks whose files sit at the repo root (1.x) keep working where they are. The skill
+  offers once to move them into `.pipeline/` and never moves anything without a yes.
+- Every agent must be told its task folder, and refuses to start without one. After each
+  agent returns, the skill checks the files landed in that folder and moves any strays.
 
 ## Install with npx (Claude Code and/or Codex)
 
@@ -103,9 +106,14 @@ The Codex agent roles set `model = "gpt-6-astra" | "gpt-6-sol" | "gpt-6-luna"` i
 
 ## Resuming
 
-Re-invoke the same skill in the same repo. With no argument, each skill resumes its one
-unfinished task folder (asking if there are several) and infers the phase from the files in it. Each also accepts an explicit phase (for example `review-fix plan`,
-`review-implement next`, `review-fix status`).
+Re-invoke the same skill in the same repo:
+
+- **No argument:** resumes the skill's one unfinished task, asking if there are several.
+- **A task name, or part of one:** `/review-fix auth` resumes `.pipeline/20261007-review-fix-auth-audit/`.
+  It works for finished or abandoned tasks too. `root` picks an older task at the repo root.
+  If nothing matches, the text is treated as a new request.
+- **A phase:** `/review-fix plan`, `/review-implement next`, `/review-fix status`. It can be
+  combined with a name: `/review-fix auth status`.
 
 ## License
 

@@ -75,7 +75,7 @@ Front half (this skill authors these, in `.pipeline/product/`):
 - `TECH_SPEC.md` — stack rationale, architecture, data model, key interfaces, external deps, milestones, risks
 
 Back half (the agents author these, in one task folder per milestone, for example
-`.pipeline/2026-10-12-build-project-m1-accounts/`):
+`.pipeline/20261012-build-project-m1-accounts/`):
 - `PLAN.md` — atomic steps with definition of done, each batch with a `Complexity` field (from `task-planner`)
 - `IMPL_NOTES.md` — what was built, per step / fix round
 - `REVIEW.md` — `code-reviewer`'s verdict (PASS / FAIL / CONDITIONAL_PASS) and findings
@@ -88,7 +88,7 @@ ask the user to re-describe the product if `PRD.md`/`TECH_SPEC.md` exist.
 ## Modes
 
 Dispatch on the argument; with no argument, **infer the phase** from what exists
-and continue: no `.pipeline/product/PRD.md` → `brainstorm`; `PRD.md` only → `spec`;
+and continue: no `PRD.md` (in `.pipeline/product/`, or the repo root for an older project) → `brainstorm`; `PRD.md` only → `spec`;
 `+TECH_SPEC.md` and no unfinished milestone folder → `plan` (the next milestone); a milestone
 folder whose `PLAN.md` has unticked items → `build`; all ticked but no passing `REVIEW.md` → `review`.
 
@@ -112,7 +112,7 @@ Write `.pipeline/product/TECH_SPEC.md` from `PRD.md`. Recommend a stack with rat
 architecture, data model, key interfaces, milestones, and top technical risks. Confirm before planning.
 
 ### `plan`
-Create the milestone's task folder (`<YYYY-MM-DD>-build-project-m<N>-<slug>`), then delegate to
+Create the milestone's task folder (`<YYYYMMDD>-build-project-m<N>-<slug>`), then delegate to
 `task-planner` with that `TASK_DIR`, pointing it at `.pipeline/product/PRD.md` +
 `.pipeline/product/TECH_SPEC.md`. It produces `PLAN.md` in the task folder
 with atomic steps, test cases, verification commands, definition of done, and **a `Complexity`

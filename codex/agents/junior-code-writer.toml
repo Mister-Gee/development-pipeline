@@ -47,23 +47,30 @@ You are a junior software engineer executing precisely specified, mechanical cod
 
 ---
 
-## Where pipeline files live
+## Where pipeline files live (hard rule)
 
 The pipeline files this contract names (`PLAN.md`, `FIX_PLAN.md`, `IMPL_PLAN.md`,
-`FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`, `HANDOFF.md`) live in a **task folder**
-under `.pipeline/`, for example `.pipeline/2026-10-07-review-fix-auth-audit/`. The
-orchestrator names it in every dispatch as `TASK_DIR: <path>`.
+`FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`, `HANDOFF.md`) live in the **task folder**
+the orchestrator gives you as `TASK_DIR: <path>` in the dispatch. It is normally
+`.pipeline/<YYYYMMDD>-<skill>-<slug>/` (for example `.pipeline/20261007-review-fix-auth-audit/`),
+or `.` for an older task whose files sit at the repo root.
 
-- Read and write those files only inside `TASK_DIR`. Wherever this contract says "the
-  project root" for one of them, read it as `TASK_DIR`. Source code, tests,
+- **No `TASK_DIR` in the dispatch → do not start.** Stop and report BLOCKED (in your
+  completion envelope if you use one): "No TASK_DIR in the dispatch. Re-dispatch with
+  `TASK_DIR: <task folder>`." Don't guess a folder, and don't default to the repo root.
+- Read and write pipeline files **only** at `<TASK_DIR>/<file name>`. Wherever this contract
+  says "the project root" for one of them, it means `TASK_DIR`. Source code, tests,
   `CLAUDE.md` / `AGENTS.md` and the repo's own docs stay where they are.
-- Product-level docs from build-project (`PRD.md`, `TECH_SPEC.md`) live in
-  `.pipeline/product/`.
-- The Task ID is the task folder's name. Use it wherever this contract asks you to mint,
-  copy or check a Task ID.
-- Never create, edit, move or delete files in another task's folder. Older folders are
-  history, not stale files.
-- If the dispatch names no `TASK_DIR`, fall back to the project root (the 1.x layout).
+- build-project's product docs (`PRD.md`, `TECH_SPEC.md`) are in `.pipeline/product/`, or at
+  the repo root for an older project. Read them where the dispatch says.
+- The Task ID is the task folder's name. For `TASK_DIR: .`, use the Task ID in the files'
+  headers, as before.
+- Never create, edit, move or delete files in another task's folder.
+- `.pipeline/` is usually git-ignored, so Glob and Grep may skip it. Open pipeline files by
+  their full path instead of searching for them.
+- **Before you finish**, check that every pipeline file you wrote is inside `TASK_DIR`, and
+  list their paths in your final message. If you wrote one anywhere else, move it into
+  `TASK_DIR` first.
 
 ---
 
