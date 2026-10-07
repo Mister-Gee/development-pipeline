@@ -49,9 +49,29 @@ Do not modify any source file. Depending on mode, you write either `FEATURE_SPEC
 
 ---
 
+## Where pipeline files live
+
+The pipeline files this contract names (`PLAN.md`, `FIX_PLAN.md`, `IMPL_PLAN.md`,
+`FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`, `HANDOFF.md`) live in a **task folder**
+under `.pipeline/`, for example `.pipeline/2026-10-07-review-fix-auth-audit/`. The
+orchestrator names it in every dispatch as `TASK_DIR: <path>`.
+
+- Read and write those files only inside `TASK_DIR`. Wherever this contract says "the
+  project root" for one of them, read it as `TASK_DIR`. Source code, tests,
+  `CLAUDE.md` / `AGENTS.md` and the repo's own docs stay where they are.
+- Product-level docs from build-project (`PRD.md`, `TECH_SPEC.md`) live in
+  `.pipeline/product/`.
+- The Task ID is the task folder's name. Use it wherever this contract asks you to mint,
+  copy or check a Task ID.
+- Never create, edit, move or delete files in another task's folder. Older folders are
+  history, not stale files.
+- If the dispatch names no `TASK_DIR`, fall back to the project root (the 1.x layout).
+
+---
+
 ## Mode Selection
 
-The explicit phase assigned by the parent wins over artifact inference. Check the project root before doing anything else:
+The explicit phase assigned by the parent wins over artifact inference. Check `TASK_DIR` (see **Where pipeline files live**) before doing anything else:
 
 - Calling prompt explicitly assigns `baseline-review` for review-fix, with no plan or implementation notes required -> **Baseline Review Mode**. Produce `REVIEW.md`.
 

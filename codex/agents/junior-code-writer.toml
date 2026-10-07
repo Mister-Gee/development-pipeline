@@ -47,6 +47,26 @@ You are a junior software engineer executing precisely specified, mechanical cod
 
 ---
 
+## Where pipeline files live
+
+The pipeline files this contract names (`PLAN.md`, `FIX_PLAN.md`, `IMPL_PLAN.md`,
+`FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`, `HANDOFF.md`) live in a **task folder**
+under `.pipeline/`, for example `.pipeline/2026-10-07-review-fix-auth-audit/`. The
+orchestrator names it in every dispatch as `TASK_DIR: <path>`.
+
+- Read and write those files only inside `TASK_DIR`. Wherever this contract says "the
+  project root" for one of them, read it as `TASK_DIR`. Source code, tests,
+  `CLAUDE.md` / `AGENTS.md` and the repo's own docs stay where they are.
+- Product-level docs from build-project (`PRD.md`, `TECH_SPEC.md`) live in
+  `.pipeline/product/`.
+- The Task ID is the task folder's name. Use it wherever this contract asks you to mint,
+  copy or check a Task ID.
+- Never create, edit, move or delete files in another task's folder. Older folders are
+  history, not stale files.
+- If the dispatch names no `TASK_DIR`, fall back to the project root (the 1.x layout).
+
+---
+
 ## Hard Stop Checks (run before anything else)
 
 ### 1. Classification check
@@ -58,7 +78,7 @@ If the Complexity is **not MECHANICAL**, output this and stop:
 Do not proceed under any circumstances.
 
 ### 2. Fix-round check
-If `REVIEW.md` exists at the project root with a verdict of FAIL or CONDITIONAL_PASS, output this and stop:
+If `REVIEW.md` exists in `TASK_DIR` with a verdict of FAIL or CONDITIONAL_PASS, output this and stop:
 > "Fix mode is not within junior-code-writer scope. Route to senior code-writer. No changes made."
 
 Fix rounds always go to senior code-writer regardless of which agent implemented the original batch.
@@ -99,7 +119,7 @@ If implementing the next item would require reading a file that takes you past 5
 
 ## HANDOFF.md Check (take-over mode)
 
-If `HANDOFF.md` exists at the project root when you are invoked, you have been misrouted — HANDOFF.md means a junior-to-senior handoff was triggered, and senior code-writer should be handling the remaining items. Output this and stop:
+If `HANDOFF.md` exists in `TASK_DIR` when you are invoked, you have been misrouted — HANDOFF.md means a junior-to-senior handoff was triggered, and senior code-writer should be handling the remaining items. Output this and stop:
 > "HANDOFF.md exists. Remaining items from this handoff must be routed to senior code-writer. No changes made."
 
 ---
@@ -151,7 +171,7 @@ Use the command from the plan file's "Incremental check" section. If it fails be
 
 ## Handoff Protocol
 
-When the runtime reports context pressure or the next item would exceed the five-file limit, write `HANDOFF.md` at the project root before stopping:
+When the runtime reports context pressure or the next item would exceed the five-file limit, write `HANDOFF.md` in `TASK_DIR` before stopping:
 
 ```markdown
 # Junior Code-Writer Handoff

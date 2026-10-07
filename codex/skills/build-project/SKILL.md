@@ -23,7 +23,7 @@ Use this exact installed role map:
 use a unique task label, and the label must not be treated as proof that the TOML was loaded.
 Every self-contained dispatch message must begin
 `ROLE: installed <role>. First read <absolute TOML path> and follow its developer_instructions.`
-using the matching path above, then include `PHASE`, `PARENT_TASK: <canonical parent path>`,
+using the matching path above, then include `PHASE`, `PARENT_TASK: <canonical parent path>`, `TASK_DIR: <task folder>`,
 repository/workspace, Task ID, input/artifact paths, scope, allowed writes, and verification.
 
 ### Preflight
@@ -158,13 +158,57 @@ This gate is the **only** exception to the no-inline-takeover rule in the Codex 
 contract above, and it applies only before any sub-agent has been dispatched. Once the
 pipeline has started, the contract holds in full.
 
-## Artifacts (single source of truth, written to the project repo)
+## Where the files live (`.pipeline/`)
 
-Front half (this skill authors these):
+Every file this pipeline writes lives under `.pipeline/` at the repo root, never loose in
+the root itself.
+
+```
+.pipeline/
+  product/                                  # build-project only
+    PRD.md  TECH_SPEC.md
+  2026-10-07-review-fix-auth-audit/         # one folder per task
+    REVIEW.md  FIX_PLAN.md  IMPL_NOTES.md  HANDOFF.md
+  2026-10-09-review-implement-csv-export/
+    FEATURE_SPEC.md  IMPL_PLAN.md  IMPL_NOTES.md  REVIEW.md
+  2026-10-12-build-project-m1-accounts/     # build-project: one folder per milestone
+    PLAN.md  IMPL_NOTES.md  REVIEW.md
+```
+
+- **Task folder name:** `<YYYY-MM-DD>-<skill>-<short-kebab-slug>`, using today's date. The
+  folder name is the Task ID that every agent copies into its files.
+- **Every dispatch starts with `TASK_DIR: <path to the task folder>`.** The agents read and
+  write pipeline files only there. When this skill says "the project root" for a pipeline
+  file, it means the task folder.
+- **Picking the task to resume (no argument):** look at this skill's folders (names
+  containing `-<skill>-`). A task is **finished** when its plan file is fully ticked and its
+  `REVIEW.md` verdict is PASS. Resume the one unfinished folder. If several are unfinished,
+  ask the user which one, newest first. If none are, start a new task:
+  create its folder before the first dispatch. The user can also
+  name a folder directly.
+- **History is kept.** Never delete or rewrite a finished task's folder, and never touch
+  another task's folder. Because every run gets a fresh folder, nothing needs clearing
+  before a new task starts.
+- **Commit it.** `.pipeline/` is project history (specs, plans, reviews), so leave it
+  tracked. Don't add it to `.gitignore`. If the repo already ignores it, leave that alone
+  and mention it once.
+- **Old root files (1.x layout):** before starting, check the repo root for `PLAN.md`,
+  `FIX_PLAN.md`, `IMPL_PLAN.md`, `FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`,
+  `HANDOFF.md`, `PRD.md` or `TECH_SPEC.md`. If any exist, list them and ask whether to move
+  them into `.pipeline/`: plan, spec, review and notes files into a task folder named from
+  their Task ID (or `<date>-legacy` without one); `PRD.md` and `TECH_SPEC.md` into
+  `.pipeline/product/`. Use `git mv` for tracked files. **Never move anything without a
+  yes**: a root `PRD.md` or `PLAN.md` may be the project's own document, not a pipeline
+  file. If the user declines, leave them where they are and work in `.pipeline/` anyway.
+
+## Artifacts (single source of truth, written to the task folder)
+
+Front half (this skill authors these, in `.pipeline/product/`):
 - `PRD.md` — problem, target users, goals + non-goals, user stories, success metrics, constraints, open questions
 - `TECH_SPEC.md` — stack rationale, architecture, data model, key interfaces, external deps, milestones, risks
 
-Back half (the agents author these):
+Back half (the agents author these, in one task folder per milestone, for example
+`.pipeline/2026-10-12-build-project-m1-accounts/`):
 - `PLAN.md` — atomic steps with definition of done, each batch with a `Complexity` field (from `task-planner`)
 - `IMPL_NOTES.md` — what was built, per step / fix round
 - `REVIEW.md` — `code-reviewer`'s verdict (PASS / FAIL / CONDITIONAL_PASS) and findings
@@ -176,9 +220,10 @@ ask the user to re-describe the product if `PRD.md`/`TECH_SPEC.md` exist.
 
 ## Modes
 
-Dispatch on the argument; with no argument, **infer the phase** from which artifacts exist
-and continue: nothing → `brainstorm`; `PRD.md` only → `spec`; `+TECH_SPEC.md` → `plan`;
-`+PLAN.md` → `build`; built but no passing `REVIEW.md` → `review`.
+Dispatch on the argument; with no argument, **infer the phase** from what exists
+and continue: no `.pipeline/product/PRD.md` → `brainstorm`; `PRD.md` only → `spec`;
+`+TECH_SPEC.md` and no unfinished milestone folder → `plan` (the next milestone); a milestone
+folder whose `PLAN.md` has unticked items → `build`; all ticked but no passing `REVIEW.md` → `review`.
 
 ### `brainstorm`
 Be a sharp thinking partner, not a stenographer. Interactively pull the idea into shape:
@@ -191,25 +236,27 @@ Do **not** jump to a tech stack or code here — that's `spec`. Do not write fil
 user confirms the direction.
 
 ### `prd`
-Write `PRD.md` from the brainstorm. Flag unresolved questions explicitly rather than
+Write `.pipeline/product/PRD.md` from the brainstorm. Flag unresolved questions explicitly rather than
 inventing answers. Confirm with the user.
 
 ### `spec`
-Write `TECH_SPEC.md` from `PRD.md`. Recommend a stack with rationale, sketch the
+Write `.pipeline/product/TECH_SPEC.md` from `PRD.md`. Recommend a stack with rationale, sketch the
 architecture, data model, key interfaces, milestones, and top technical risks. Confirm before planning.
 
 ### `plan`
-Delegate to `task-planner`, pointing it at `PRD.md` + `TECH_SPEC.md`. It produces `PLAN.md`
+Create the milestone's task folder (`<YYYY-MM-DD>-build-project-m<N>-<slug>`), then delegate to
+`task-planner` with that `TASK_DIR`, pointing it at `.pipeline/product/PRD.md` +
+`.pipeline/product/TECH_SPEC.md`. It produces `PLAN.md` in the task folder
 with atomic steps, test cases, verification commands, definition of done, and **a `Complexity`
 field on each batch** (MECHANICAL / GUIDED / STRUCTURAL) — that field is what `build` uses
-to route to the right code-writer. For a large product, plan **milestone by milestone**.
+to route to the right code-writer. Plan **one milestone per task folder**.
 
 ### `build`
 
 **Batch Routing — apply this every time before dispatching an implement pass:**
 
 ```
-1. Check if HANDOFF.md exists at the project root
+1. Check if HANDOFF.md exists in the task folder
    → YES: dispatch remaining items to code-writer (senior) [see Handoff Handling below]
    → NO: continue to step 2
 
@@ -222,11 +269,11 @@ to route to the right code-writer. For a large product, plan **milestone by mile
 ```
 
 **Dispatching to junior-code-writer (MECHANICAL):**
-- Tell junior: the plan file name (`PLAN.md`), the batch number to implement, and whether `AGENTS.md` / `CLAUDE.md` is present. Junior reads all files from disk via its own tools — do not paste file contents into the prompt.
+- Tell junior: `TASK_DIR`, the plan file name (`PLAN.md`), the batch number to implement, and whether `AGENTS.md` / `CLAUDE.md` is present. Junior reads all files from disk via its own tools — do not paste file contents into the prompt.
 - Do NOT mention REVIEW.md in the prompt unless you have confirmed there is no active FAIL/CONDITIONAL_PASS verdict — junior refuses fix mode and will stop if it sees one.
 
 **Dispatching to code-writer (GUIDED / STRUCTURAL / fix rounds):**
-- Tell code-writer: the plan file name (`PLAN.md`), the batch number (or "fix round" and the REVIEW.md verdict), and whether `TECH_SPEC.md` and `AGENTS.md` / `CLAUDE.md` are present. Code-writer reads all files from disk via its own tools — do not paste file contents into the prompt.
+- Tell code-writer: `TASK_DIR`, the plan file name (`PLAN.md`), the batch number (or "fix round" and the REVIEW.md verdict), and whether `TECH_SPEC.md` and `AGENTS.md` / `CLAUDE.md` are present. Code-writer reads all files from disk via its own tools — do not paste file contents into the prompt.
 
 **After any code-writer or junior-code-writer returns:**
 - Check for `HANDOFF.md` — if present, see Handoff Handling before continuing
@@ -237,7 +284,7 @@ to route to the right code-writer. For a large product, plan **milestone by mile
 
 **Handoff Handling (HANDOFF.md exists):**
 - `junior-code-writer` ran out of context mid-batch and wrote `HANDOFF.md`
-- Tell `code-writer` (senior): `HANDOFF.md` exists at the project root, the plan file name (`PLAN.md`), and the batch number. Code-writer reads `HANDOFF.md`, `TECH_SPEC.md`, and all other files from disk via its own tools — do not paste file contents into the prompt.
+- Tell `code-writer` (senior): `HANDOFF.md` exists in `TASK_DIR`, the plan file name (`PLAN.md`), and the batch number. Code-writer reads `HANDOFF.md`, `TECH_SPEC.md`, and all other files from disk via its own tools — do not paste file contents into the prompt.
 - `code-writer` will complete the remaining items and delete `HANDOFF.md` on success
 - After senior completes: proceed to `code-reviewer` for the full batch as normal
 - Tick ALL batch items (junior's completed + senior's) together once review passes

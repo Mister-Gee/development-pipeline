@@ -65,16 +65,17 @@ on throwaway work, never to skip planning on real work.
 ## Required reading (before your first back-half dispatch)
 
 **Read `pipeline-core.md` (in this skill's folder) now.** It carries the rules this skill
-depends on and does not repeat: handoff handling, how sub-agents escalate to the user, the
+depends on and does not repeat: where the files live (`.pipeline/`), handoff handling, how sub-agents escalate to the user, the
 standing rules, and the engineering guardrails.
 
-## Artifacts (single source of truth, written to the project repo)
+## Artifacts (single source of truth, written to the task folder)
 
-Front half (this skill authors these):
+Front half (this skill authors these, in `.pipeline/product/`):
 - `PRD.md` — problem, target users, goals + non-goals, user stories, success metrics, constraints, open questions
 - `TECH_SPEC.md` — stack rationale, architecture, data model, key interfaces, external deps, milestones, risks
 
-Back half (the agents author these):
+Back half (the agents author these, in one task folder per milestone, for example
+`.pipeline/2026-10-12-build-project-m1-accounts/`):
 - `PLAN.md` — atomic steps with definition of done, each batch with a `Complexity` field (from `task-planner`)
 - `IMPL_NOTES.md` — what was built, per step / fix round
 - `REVIEW.md` — `code-reviewer`'s verdict (PASS / FAIL / CONDITIONAL_PASS) and findings
@@ -86,9 +87,10 @@ ask the user to re-describe the product if `PRD.md`/`TECH_SPEC.md` exist.
 
 ## Modes
 
-Dispatch on the argument; with no argument, **infer the phase** from which artifacts exist
-and continue: nothing → `brainstorm`; `PRD.md` only → `spec`; `+TECH_SPEC.md` → `plan`;
-`+PLAN.md` → `build`; built but no passing `REVIEW.md` → `review`.
+Dispatch on the argument; with no argument, **infer the phase** from what exists
+and continue: no `.pipeline/product/PRD.md` → `brainstorm`; `PRD.md` only → `spec`;
+`+TECH_SPEC.md` and no unfinished milestone folder → `plan` (the next milestone); a milestone
+folder whose `PLAN.md` has unticked items → `build`; all ticked but no passing `REVIEW.md` → `review`.
 
 ### `brainstorm`
 Be a sharp thinking partner, not a stenographer. Interactively pull the idea into shape:
@@ -102,25 +104,27 @@ Do **not** jump to a tech stack or code here — that's `spec`. Do not write fil
 user confirms the direction.
 
 ### `prd`
-Write `PRD.md` from the brainstorm. Flag unresolved questions explicitly rather than
+Write `.pipeline/product/PRD.md` from the brainstorm. Flag unresolved questions explicitly rather than
 inventing answers. Confirm with the user.
 
 ### `spec`
-Write `TECH_SPEC.md` from `PRD.md`. Recommend a stack with rationale, sketch the
+Write `.pipeline/product/TECH_SPEC.md` from `PRD.md`. Recommend a stack with rationale, sketch the
 architecture, data model, key interfaces, milestones, and top technical risks. Confirm before planning.
 
 ### `plan`
-Delegate to `task-planner`, pointing it at `PRD.md` + `TECH_SPEC.md`. It produces `PLAN.md`
+Create the milestone's task folder (`<YYYY-MM-DD>-build-project-m<N>-<slug>`), then delegate to
+`task-planner` with that `TASK_DIR`, pointing it at `.pipeline/product/PRD.md` +
+`.pipeline/product/TECH_SPEC.md`. It produces `PLAN.md` in the task folder
 with atomic steps, test cases, verification commands, definition of done, and **a `Complexity`
 field on each batch** (MECHANICAL / GUIDED / STRUCTURAL) — that field is what `build` uses
-to route to the right code-writer. For a large product, plan **milestone by milestone**.
+to route to the right code-writer. Plan **one milestone per task folder**.
 
 ### `build`
 
 **Batch Routing — apply this every time before dispatching an implement pass:**
 
 ```
-1. Check if HANDOFF.md exists at the project root
+1. Check if HANDOFF.md exists in the task folder
    → YES: dispatch remaining items to code-writer (senior) [see Handoff Handling below]
    → NO: continue to step 2
 
@@ -133,11 +137,11 @@ to route to the right code-writer. For a large product, plan **milestone by mile
 ```
 
 **Dispatching to junior-code-writer (MECHANICAL):**
-- Tell junior: the plan file name (`PLAN.md`), the batch number to implement, and whether `CLAUDE.md` is present. Junior reads all files from disk via its own tools — do not paste file contents into the prompt.
+- Tell junior: `TASK_DIR`, the plan file name (`PLAN.md`), the batch number to implement, and whether `CLAUDE.md` is present. Junior reads all files from disk via its own tools — do not paste file contents into the prompt.
 - Do NOT mention REVIEW.md in the prompt unless you have confirmed there is no active FAIL/CONDITIONAL_PASS verdict — junior refuses fix mode and will stop if it sees one.
 
 **Dispatching to code-writer (GUIDED / STRUCTURAL / fix rounds):**
-- Tell code-writer: the plan file name (`PLAN.md`), the batch number (or "fix round" and the REVIEW.md verdict), and whether `TECH_SPEC.md` and `CLAUDE.md` are present. Code-writer reads all files from disk via its own tools — do not paste file contents into the prompt.
+- Tell code-writer: `TASK_DIR`, the plan file name (`PLAN.md`), the batch number (or "fix round" and the REVIEW.md verdict), and whether `TECH_SPEC.md` and `CLAUDE.md` are present. Code-writer reads all files from disk via its own tools — do not paste file contents into the prompt.
 
 **Review cadence: per milestone, not per batch.**
 

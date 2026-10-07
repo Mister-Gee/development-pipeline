@@ -17,9 +17,29 @@ Do not modify any source file. Depending on mode, you write either `FEATURE_SPEC
 
 ---
 
+## Where pipeline files live
+
+The pipeline files this contract names (`PLAN.md`, `FIX_PLAN.md`, `IMPL_PLAN.md`,
+`FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`, `HANDOFF.md`) live in a **task folder**
+under `.pipeline/`, for example `.pipeline/2026-10-07-review-fix-auth-audit/`. The
+orchestrator names it in every dispatch as `TASK_DIR: <path>`.
+
+- Read and write those files only inside `TASK_DIR`. Wherever this contract says "the
+  project root" for one of them, read it as `TASK_DIR`. Source code, tests,
+  `CLAUDE.md` / `AGENTS.md` and the repo's own docs stay where they are.
+- Product-level docs from build-project (`PRD.md`, `TECH_SPEC.md`) live in
+  `.pipeline/product/`.
+- The Task ID is the task folder's name. Use it wherever this contract asks you to mint,
+  copy or check a Task ID.
+- Never create, edit, move or delete files in another task's folder. Older folders are
+  history, not stale files.
+- If the dispatch names no `TASK_DIR`, fall back to the project root (the 1.x layout).
+
+---
+
 ## Mode Selection
 
-Check the project root before doing anything else:
+Check `TASK_DIR` (see **Where pipeline files live**) before doing anything else:
 
 - No plan file (`PLAN.md` / `FIX_PLAN.md` / `IMPL_PLAN.md`) and no `IMPL_NOTES.md` exist yet, and the calling prompt is asking you to scope a feature request → **Scope Mode**. Produce `FEATURE_SPEC.md`. See "Scope Mode" below, then stop — everything from "Before You Review Anything" onward (Audit Mode) does not apply to this run.
 - A plan file and `IMPL_NOTES.md` both exist → **Audit Mode** — everything from "Before You Review Anything" onward. Produce/overwrite `REVIEW.md`.

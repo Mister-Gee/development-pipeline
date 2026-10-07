@@ -10,6 +10,51 @@ Where this file says **"the plan file"**, read it as whichever the calling skill
 
 ---
 
+## Where the files live (`.pipeline/`)
+
+Every file this pipeline writes lives under `.pipeline/` at the repo root, never loose in
+the root itself.
+
+```
+.pipeline/
+  product/                                  # build-project only
+    PRD.md  TECH_SPEC.md
+  2026-10-07-review-fix-auth-audit/         # one folder per task
+    REVIEW.md  FIX_PLAN.md  IMPL_NOTES.md  HANDOFF.md
+  2026-10-09-review-implement-csv-export/
+    FEATURE_SPEC.md  IMPL_PLAN.md  IMPL_NOTES.md  REVIEW.md
+  2026-10-12-build-project-m1-accounts/     # build-project: one folder per milestone
+    PLAN.md  IMPL_NOTES.md  REVIEW.md
+```
+
+- **Task folder name:** `<YYYY-MM-DD>-<skill>-<short-kebab-slug>`, using today's date. The
+  folder name is the Task ID that every agent copies into its files.
+- **Every dispatch starts with `TASK_DIR: <path to the task folder>`.** The agents read and
+  write pipeline files only there. When this skill says "the project root" for a pipeline
+  file, it means the task folder.
+- **Picking the task to resume (no argument):** look at this skill's folders (names
+  containing `-<skill>-`). A task is **finished** when its plan file is fully ticked and its
+  `REVIEW.md` verdict is PASS. Resume the one unfinished folder. If several are unfinished,
+  ask the user which one, newest first. If none are, start a new task:
+  create its folder before the first dispatch. The user can also
+  name a folder directly.
+- **History is kept.** Never delete or rewrite a finished task's folder, and never touch
+  another task's folder. Because every run gets a fresh folder, nothing needs clearing
+  before a new task starts.
+- **Commit it.** `.pipeline/` is project history (specs, plans, reviews), so leave it
+  tracked. Don't add it to `.gitignore`. If the repo already ignores it, leave that alone
+  and mention it once.
+- **Old root files (1.x layout):** before starting, check the repo root for `PLAN.md`,
+  `FIX_PLAN.md`, `IMPL_PLAN.md`, `FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`,
+  `HANDOFF.md`, `PRD.md` or `TECH_SPEC.md`. If any exist, list them and ask whether to move
+  them into `.pipeline/`: plan, spec, review and notes files into a task folder named from
+  their Task ID (or `<date>-legacy` without one); `PRD.md` and `TECH_SPEC.md` into
+  `.pipeline/product/`. Use `git mv` for tracked files. **Never move anything without a
+  yes**: a root `PRD.md` or `PLAN.md` may be the project's own document, not a pipeline
+  file. If the user declines, leave them where they are and work in `.pipeline/` anyway.
+
+---
+
 ## Naming models (a convention for these files)
 
 **Instructions describe tiers; only configuration names models.** Model names change with
@@ -61,7 +106,7 @@ senior redo: the worst outcome. So:
 `junior-code-writer` ran out of context mid-batch and wrote `HANDOFF.md`. The remaining
 items go to `code-writer` (senior) — never back to junior, which refuses take-over mode.
 
-- Tell `code-writer`: `HANDOFF.md` exists at the project root, the plan file name, and the
+- Tell `code-writer`: `HANDOFF.md` exists in `TASK_DIR`, the plan file name, and the
   batch number. **Code-writer reads `HANDOFF.md` and every other file from disk via its own
   tools — do not paste file contents, item text, or file lists into the prompt.**
 - `code-writer` completes the remaining items and deletes `HANDOFF.md` on success

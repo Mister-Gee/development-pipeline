@@ -5,7 +5,8 @@
 
 Resumable, file-backed software pipelines for **Claude Code** and **Codex**. A main agent
 orchestrates, and dedicated sub-agents plan, write and review the code. All state lives in
-markdown files inside your repo, so any fresh session picks up where the last one stopped.
+markdown files under `.pipeline/` in your repo, so any fresh session picks up where the last
+one stopped, and your project root stays clean.
 
 | Skill | Use it for | State files |
 |---|---|---|
@@ -19,6 +20,24 @@ markdown files inside your repo, so any fresh session picks up where the last on
 | `code-writer` | Senior implementer: GUIDED and STRUCTURAL batches, every fix round, junior handoffs |
 | `junior-code-writer` | Cheap implementer for MECHANICAL batches only |
 | `code-reviewer` | Audits the diff (PASS / FAIL / CONDITIONAL_PASS); also scopes features into `FEATURE_SPEC.md` |
+
+## Where the files go
+
+Since 2.0, everything goes into a `.pipeline/` folder, one subfolder per task:
+
+```
+.pipeline/
+  product/                                  # build-project: PRD.md, TECH_SPEC.md
+  2026-10-07-review-fix-auth-audit/         # REVIEW.md, FIX_PLAN.md, IMPL_NOTES.md
+  2026-10-09-review-implement-csv-export/   # FEATURE_SPEC.md, IMPL_PLAN.md, IMPL_NOTES.md, REVIEW.md
+  2026-10-12-build-project-m1-accounts/     # PLAN.md, IMPL_NOTES.md, REVIEW.md (one per milestone)
+```
+
+- Finished task folders are kept as history, and two tasks can run side by side.
+- Commit `.pipeline/` so specs, plans and reviews stay with the project.
+- Upgrading from 1.x: if your repo root still has `PLAN.md`, `REVIEW.md` and the like, the
+  skill lists them and asks before moving them into `.pipeline/`. It never moves files
+  without a yes.
 
 ## Install with npx (Claude Code and/or Codex)
 
@@ -84,8 +103,8 @@ The Codex agent roles set `model = "gpt-6-astra" | "gpt-6-sol" | "gpt-6-luna"` i
 
 ## Resuming
 
-Re-invoke the same skill in the same repo. With no argument, each skill infers its phase from
-which state files exist. Each also accepts an explicit phase (for example `review-fix plan`,
+Re-invoke the same skill in the same repo. With no argument, each skill resumes its one
+unfinished task folder (asking if there are several) and infers the phase from the files in it. Each also accepts an explicit phase (for example `review-fix plan`,
 `review-implement next`, `review-fix status`).
 
 ## License

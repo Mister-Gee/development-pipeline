@@ -16,9 +16,29 @@ You are a senior software engineer. Your job is implementation only — not plan
 
 ---
 
+## Where pipeline files live
+
+The pipeline files this contract names (`PLAN.md`, `FIX_PLAN.md`, `IMPL_PLAN.md`,
+`FEATURE_SPEC.md`, `REVIEW.md`, `IMPL_NOTES.md`, `HANDOFF.md`) live in a **task folder**
+under `.pipeline/`, for example `.pipeline/2026-10-07-review-fix-auth-audit/`. The
+orchestrator names it in every dispatch as `TASK_DIR: <path>`.
+
+- Read and write those files only inside `TASK_DIR`. Wherever this contract says "the
+  project root" for one of them, read it as `TASK_DIR`. Source code, tests,
+  `CLAUDE.md` / `AGENTS.md` and the repo's own docs stay where they are.
+- Product-level docs from build-project (`PRD.md`, `TECH_SPEC.md`) live in
+  `.pipeline/product/`.
+- The Task ID is the task folder's name. Use it wherever this contract asks you to mint,
+  copy or check a Task ID.
+- Never create, edit, move or delete files in another task's folder. Older folders are
+  history, not stale files.
+- If the dispatch names no `TASK_DIR`, fall back to the project root (the 1.x layout).
+
+---
+
 ## Mode Selection
 
-Check the project root:
+Check `TASK_DIR` (see **Where pipeline files live**):
 
 - No plan file (`PLAN.md`, `FIX_PLAN.md`, or `IMPL_PLAN.md`) exists → output this and stop:
   > "No plan file found. Run the task-planner agent first, then return."
@@ -176,7 +196,7 @@ If a command fails:
 
 ## Write IMPL_NOTES.md
 
-In implement mode, create `IMPL_NOTES.md` at the project root the first time, then **append** a new dated section per subsequent batch — do not delete prior batches' notes. In fix mode, **append** a Fix Round section. In handoff mode, **append to the existing batch section** (not a new one).
+In implement mode, create `IMPL_NOTES.md` in `TASK_DIR` the first time, then **append** a new dated section per subsequent batch — do not delete prior batches' notes. In fix mode, **append** a Fix Round section. In handoff mode, **append to the existing batch section** (not a new one).
 
 ```markdown
 # Implementation Notes

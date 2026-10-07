@@ -50,7 +50,7 @@ agent doing the scoping, planning, or coding itself "because it's faster". Do no
 ## Required reading (before your first dispatch)
 
 **Read `pipeline-core.md` (in this skill's folder) now.** It carries the rules this skill
-depends on and does not repeat: handoff handling, how sub-agents escalate to the user, the
+depends on and does not repeat: where the files live (`.pipeline/`), handoff handling, how sub-agents escalate to the user, the
 standing rules, and the engineering guardrails. Read it once per session, before Gate 0.
 
 ## Gate 0 — is the pipeline worth it? (new features only; skip on resume)
@@ -75,7 +75,7 @@ Run the pipeline when in doubt, and always when the change touches auth, permiss
 persistence, migrations, money, or anything user-facing and irreversible. This gate exists
 to skip ceremony on small work — never to skip review on risky work.
 
-## Artifacts (single source of truth, written to the repo being worked on)
+## Artifacts (single source of truth, written to the task folder)
 
 - `FEATURE_SPEC.md` — the scoped feature: what it does, the relevant existing files,
   where the new code hooks in, constraints, open questions, and acceptance criteria.
@@ -88,12 +88,12 @@ to skip ceremony on small work — never to skip review on risky work.
 - `HANDOFF.md` — written by `junior-code-writer` if it runs out of context mid-batch;
   signals that remaining items in that batch must be routed to `code-writer` (senior).
 
-If `FEATURE_SPEC.md`/`IMPL_PLAN.md`/`IMPL_NOTES.md`/`REVIEW.md` from a *previous, unrelated*
-task are stale, clear them before starting a new feature.
+Each run gets its own task folder (see **Where the files live**), so nothing needs
+clearing before a new task starts.
 
 ## Modes
 
-Dispatch on the argument; with no argument, **infer the phase** from which artifacts exist
+Dispatch on the argument; with no argument, **infer the phase** from which artifacts exist in the task folder being resumed
 and continue (no artifacts → `scope`; `FEATURE_SPEC.md` only → `plan`; `IMPL_PLAN.md` with
 unchecked items → `next`; all items checked → `review`).
 
@@ -133,7 +133,7 @@ unchecked items → `next`; all items checked → `review`).
 **Batch Routing — apply this every time before dispatching:**
 
 ```
-1. Check if HANDOFF.md exists at the project root
+1. Check if HANDOFF.md exists in the task folder
    → YES: dispatch remaining items to code-writer (senior) [see Handoff Handling below]
    → NO: continue to step 2
 
@@ -146,11 +146,11 @@ unchecked items → `next`; all items checked → `review`).
 ```
 
 **Dispatching to junior-code-writer (MECHANICAL):**
-- Tell junior: the plan file name (`IMPL_PLAN.md`), the batch number to implement, and whether `FEATURE_SPEC.md` and `CLAUDE.md` are present. Junior reads all files from disk via its own tools — do not paste file contents into the prompt.
+- Tell junior: `TASK_DIR`, the plan file name (`IMPL_PLAN.md`), the batch number to implement, and whether `FEATURE_SPEC.md` and `CLAUDE.md` are present. Junior reads all files from disk via its own tools — do not paste file contents into the prompt.
 - Do NOT mention REVIEW.md in the prompt unless you have confirmed there is no active FAIL/CONDITIONAL_PASS verdict — junior refuses fix mode and will stop if it sees one.
 
 **Dispatching to code-writer (GUIDED / STRUCTURAL / fix rounds):**
-- Tell code-writer: the plan file name (`IMPL_PLAN.md`), the batch number (or "fix round" and the REVIEW.md verdict), and whether `FEATURE_SPEC.md` and `CLAUDE.md` are present. Code-writer reads all files from disk via its own tools — do not paste file contents into the prompt.
+- Tell code-writer: `TASK_DIR`, the plan file name (`IMPL_PLAN.md`), the batch number (or "fix round" and the REVIEW.md verdict), and whether `FEATURE_SPEC.md` and `CLAUDE.md` are present. Code-writer reads all files from disk via its own tools — do not paste file contents into the prompt.
 
 **After any sub-agent returns:**
 - Check for `HANDOFF.md` — if present, see Handoff Handling below before ticking items
