@@ -214,7 +214,8 @@ root itself.
    - several → ask the user which one, newest first
    - none → the reference is a new request: start a new task with a slug made from it
 3. **No task reference:** resume this skill's one **unfinished** task. A task is finished
-   when its plan file is fully ticked and its `REVIEW.md` verdict is PASS. If several are
+   when every plan file in its folder is fully ticked (the original plan and any
+   `FIX_PLAN.md` from a fix round) and its `REVIEW.md` verdict is PASS. If several are
    unfinished, ask which one, newest first, and remind the user they can pass a name next
    time. If none are, start a new task.
 4. **Starting a new task:** create its folder before the first dispatch.
@@ -225,8 +226,9 @@ has its own folder, nothing needs clearing before a new one starts.
 ### Enforcement (every dispatch)
 
 - **Every dispatch starts with `TASK_DIR: <task folder>`** (`TASK_DIR: .` for the root
-  task). An agent dispatched without it stops with BLOCKED and does nothing. That is a
-  wasted dispatch, so never omit it.
+  task), followed by the plan file it should use. An agent dispatched without `TASK_DIR`
+  falls back to the repo root, which puts a `.pipeline/` task's files in the wrong place,
+  so never omit it.
 - **After every sub-agent returns, check its work before anything else:**
   1. The file it was meant to produce exists in `TASK_DIR`: `FEATURE_SPEC.md` or `REVIEW.md`
      after scope/review, the plan file after plan, `IMPL_NOTES.md` after implement.

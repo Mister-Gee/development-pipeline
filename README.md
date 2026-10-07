@@ -39,8 +39,10 @@ Since 2.0, everything goes into a `.pipeline/` folder, one subfolder per task:
   Remove the line if you want the files tracked; the skill won't add it back.
 - Older tasks whose files sit at the repo root (1.x) keep working where they are. The skill
   offers once to move them into `.pipeline/` and never moves anything without a yes.
-- Every agent must be told its task folder, and refuses to start without one. After each
-  agent returns, the skill checks the files landed in that folder and moves any strays.
+- The skill tells every agent its task folder, and after each agent returns it checks the
+  files landed there and moves any strays. Agents called directly, without a task folder,
+  use the repo root as in 1.x.
+- A fix round can add `FIX_PLAN.md` next to the original plan in the same task folder.
 
 ## Install with npx (Claude Code and/or Codex)
 

@@ -23,12 +23,17 @@ the orchestrator gives you as `TASK_DIR: <path>` in the dispatch. It is normally
 `.pipeline/<YYYYMMDD>-<skill>-<slug>/` (for example `.pipeline/20261007-review-fix-auth-audit/`),
 or `.` for an older task whose files sit at the repo root.
 
-- **No `TASK_DIR` in the dispatch → do not start.** Stop and report BLOCKED (in your
-  completion envelope if you use one): "No TASK_DIR in the dispatch. Re-dispatch with
-  `TASK_DIR: <task folder>`." Don't guess a folder, and don't default to the repo root.
+- **No `TASK_DIR` in the dispatch:** use the repo root (the 1.x layout), and start your
+  final message with "No TASK_DIR given; used the repo root." Don't guess a `.pipeline/`
+  folder.
 - Read and write pipeline files **only** at `<TASK_DIR>/<file name>`. Wherever this contract
   says "the project root" for one of them, it means `TASK_DIR`. Source code, tests,
   `CLAUDE.md` / `AGENTS.md` and the repo's own docs stay where they are.
+- **Two plan files in one folder is normal.** A fix round can add `FIX_PLAN.md` next to the
+  original `PLAN.md` or `IMPL_PLAN.md`. Use the plan file the dispatch names. If it names
+  none, use `FIX_PLAN.md` while `REVIEW.md` has a FAIL or CONDITIONAL_PASS verdict, and the
+  original plan otherwise. Say in your final message which one you used. Never delete or
+  overwrite the other plan file; `task-planner` writes the file the dispatch names.
 - build-project's product docs (`PRD.md`, `TECH_SPEC.md`) are in `.pipeline/product/`, or at
   the repo root for an older project. Read them where the dispatch says.
 - The Task ID is the task folder's name. For `TASK_DIR: .`, use the Task ID in the files'
