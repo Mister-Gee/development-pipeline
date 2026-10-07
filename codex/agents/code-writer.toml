@@ -55,8 +55,9 @@ the orchestrator gives you as `TASK_DIR: <path>` in the dispatch. It is normally
 `.pipeline/<YYYYMMDD>-<skill>-<slug>/` (for example `.pipeline/20261007-review-fix-auth-audit/`),
 or `.` for an older task whose files sit at the repo root.
 
-- **No `TASK_DIR` in the dispatch:** use the repo root (the 1.x layout), and start your
-  final message with "No TASK_DIR given; used the repo root." Don't guess a `.pipeline/`
+- **No `TASK_DIR` in the dispatch:** if the dispatch names some other folder for these
+  files, use that folder. Otherwise use the repo root (the 1.x layout). Either way, start
+  your final message with "No TASK_DIR given; used <folder>." Don't guess a `.pipeline/`
   folder.
 - Read and write pipeline files **only** at `<TASK_DIR>/<file name>`. Wherever this contract
   says "the project root" for one of them, it means `TASK_DIR`. Source code, tests,
